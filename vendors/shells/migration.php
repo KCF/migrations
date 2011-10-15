@@ -216,10 +216,10 @@ class MigrationShell extends Shell {
 
 		$oldSchema = $this->_getSchema($this->type);
 		if ($oldSchema !== false) {
-			$response = $this->in(__d('migrations', 'Do you want compare the schema.php file to the database?', true), array('y', 'n'), 'y');
+			$response = $this->in(__d('migrations', 'Do you want compare the schema file to the database?', true), array('y', 'n'), 'y');
 			if (strtolower($response) === 'y') {
 				$this->hr();
-				$this->out(__d('migrations', 'Comparing schema.php to the database...', true));
+				$this->out(__d('migrations', 'Comparing schema file to the database...', true));
 
 				if ($this->type !== 'migrations') {
 					unset($oldSchema->tables['schema_migrations']);
@@ -498,7 +498,10 @@ TEXT;
 			$plugin = ($this->type === 'app') ? null : $this->type;
 			return new CakeSchema(array('connection' => $this->connection, 'plugin' => $plugin));
 		}
-		$file = $this->__getPath($type) . 'config' . DS . 'schema' . DS . 'schema.php';
+
+		$file = $this->__getPath($type) . 'config' . DS . 'schema' . DS;
+
+		$file .= isset($this->params['file']) ? $this->params['file'] : 'schema.php';
 		if (!file_exists($file)) {
 			return false;
 		}
