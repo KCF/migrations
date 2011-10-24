@@ -320,6 +320,12 @@ class CakeMigration extends Object {
 				unset($fields['indexes']);
 			}
 
+			$tableParameters = array();
+			if (isset($fields['tableParameters'])) {
+				$tableParameters = $fields['tableParameters'];
+				unset($fields['tableParameters']);
+			}
+
 			foreach ($fields as $field => $col) {
 				$model = new Model(array('table' => $table, 'ds' => $this->connection));
 				$tableFields = $this->db->describe($model);
@@ -388,6 +394,17 @@ class CakeMigration extends Object {
 					throw new MigrationException($this, sprintf(__d('migrations', 'SQL Error: %s', true), $this->db->error));
 				}
 				$this->_invokeCallbacks('afterAction', $type . '_index', array('table' => $table, 'index' => $key));
+			}
+
+			if ($tableParameters) {
+				$sql = $this->db->alterSchema(array(
+					$table => array('change' => compact('tableParameters'))
+				));
+				$this->_invokeCallbacks('beforeAction', $type . '_parameters', array('table' => $table));
+				if (@$this->db->execute($sql) === false) {
+					throw new MigrationException($this, sprintf(__d('migrations', 'SQL Error: %s', true), $this->db->error));
+				}
+				$this->_invokeCallbacks('afterAction', $type . '_parameters', array('table' => $table));
 			}
 		}
 		return true;
